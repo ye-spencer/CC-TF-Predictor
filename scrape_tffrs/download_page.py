@@ -78,8 +78,6 @@ def main():
     for (year, season), (lst_hnd, season_hnd) in SEASONS.items():
         for url in iterate_all_schools_genders_urls(lst_hnd, season_hnd):
 
-            # Not Currently Working. Just Errors
-
             outpath = "pages/" + str(year) + "_" + season + "_" + url.split("/")[-1].split("?")[0] + ".html"
 
             # Exponential Backoff
@@ -95,7 +93,6 @@ def main():
                         continue
                     time.sleep(0.75 * (2 ** i))
             print(count)
-            exit(1)
 
 if __name__ == "__main__":
     main()
