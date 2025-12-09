@@ -1,6 +1,7 @@
 import requests
 from typing import List
 import time
+import scrape as scraper
 
 SCHOOLS = {
     "Johns_Hopkins" : "MD",
@@ -57,12 +58,6 @@ def get_url_html_content(url : str) -> str:
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
         }) as response:
         return response.text
-    
-def download_page(url : str, out_path : str):
-    
-    html_content = get_url_html_content(url)
-    with open(out_path, 'w') as f:
-        f.write(html_content)
 
 def get_full_url(school : str, state : str, gender : str, lst_hnd : int, season_hnd : int) -> str:
     return "https://www.tfrrs.org/all_performances/" + state + "_college_" + gender + "_" + school + ".html?list_hnd=" + str(lst_hnd) + "&season_hnd=" + str(season_hnd)
@@ -71,20 +66,23 @@ def iterate_all_schools_genders_urls(lst_hnd : int, season_hnd : int) -> List[st
     for school, state in SCHOOLS.items():
         for gender in ["m", "f"]:
             if school != "Bryn_Mawr" or gender != "m":
-                yield get_full_url(school, state, gender, lst_hnd, season_hnd)
+                yield school, gender, get_full_url(school, state, gender, lst_hnd, season_hnd)
 
 def main():
     count = 0
     for (year, season), (lst_hnd, season_hnd) in SEASONS.items():
-        for url in iterate_all_schools_genders_urls(lst_hnd, season_hnd):
+        for school, gender, url in iterate_all_schools_genders_urls(lst_hnd, season_hnd):
 
-            outpath = "pages/" + str(year) + "_" + season + "_" + url.split("/")[-1].split("?")[0] + ".html"
+            outpath = "pages/" + str(year) + "_" + season + "_" + url.split("/")[-1].split("?")[0]
 
             # Exponential Backoff
             for i in range(1, 4):
                 try:
-                    download_page(url, outpath)
-                    break
+                    html_content = get_url_html_content(url)
+                    with open(outpath, 'w') as f:
+                        f.write(html_content)
+
+                    scraper.scrape_file(html_content, season, year, gender, school)
                 except requests.exceptions.RequestException as e:
                     print("Failed to download page " + url + " on attempt " + str(i))
                     print(e)
