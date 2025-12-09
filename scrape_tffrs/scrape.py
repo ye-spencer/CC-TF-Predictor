@@ -74,6 +74,10 @@ def scrape_individual_performance(eventId : int, season_type : str, season_year 
         wind_info = wind_info.text.strip()
     print("Wind Info: " + wind_info)
 
+    repo.insert_athlete(athlete_id, athlete_first_name, athlete_last_name, gender)
+    repo.insert_meet(meet_id, meet_name, meet_date)
+    repo.insert_athlete_performance(meet_id, athlete_id, eventId, school_id, result, wind_info)
+
 def scrape_relay_performance(eventId : int, season_type : str, season_year : int, gender : str, school_id : str, performance : BeautifulSoup):
     print("------------------Scraping Relay Performance------------------")
 
@@ -92,16 +96,23 @@ def scrape_relay_performance(eventId : int, season_type : str, season_year : int
     athlete_link_info = performance.find("div", {"data-label" : "Athletes"})
 
     athletes_link_info = athlete_link_info.find_all("a")
+    athletes = []
     if len(athletes_link_info) % 4 != 0:
         raise Exception("Invalid Number of Athletes: " + str(len(athletes_link_info)))
-    if len(athletes_link_info) == 0:
-        print("No Known Athletes")
     else:
         for athlete_link in athletes_link_info:
             athlete_id = athlete_link.get("href").strip().split("/")[4]
-            print("Athlete Id: " + athlete_id)
+            athletes.append(athlete_id)
             assert athlete_link.get("href").strip().split("/")[5] == school_id
 
+            athlete_last_name = athlete_link.text.strip()
+            athlete_full_name = athlete_link.get("href").strip().split("/")[6]
+            athlete_first_name = (athlete_full_name[:len(athlete_full_name) - len(athlete_last_name) - 6]).replace("_", " ")
+
+            repo.insert_athlete(athlete_id, athlete_first_name, athlete_last_name, gender)
+
+    athletes = tuple(athletes)
+    print("Athletes: " + str(athletes))
 
     # Get Meet Info
     meet_link_info = performance.find("div", {"data-label" : "Meet"}).find("a").get("href").strip()
@@ -109,6 +120,8 @@ def scrape_relay_performance(eventId : int, season_type : str, season_year : int
     print("Meet Name: " + reduce_all_whitespace(meet_name))
 
     assert meet_link_info.count("/") == 5
+    meet_id = meet_link_info.split("/")[4]
+    print("Meet ID: " + meet_id)
 
     # Get Meet Date
     meet_date = performance.find("div", {"data-label" : "Meet Date"}).text.strip()
@@ -122,6 +135,10 @@ def scrape_relay_performance(eventId : int, season_type : str, season_year : int
         wind_info = wind_info.text.strip()
     print("Wind Info: " + wind_info)
 
+    repo.insert_meet(meet_id, meet_name, meet_date)
+    repo.insert_relay_team_performance(meet_id, athletes, eventId, school_id, result_info, wind_info)
+    
+
 
 def scrape_event(eventId : int, season_type : str, season_year : int, gender : str, school_id : str, soup : BeautifulSoup):
     result = soup.find("div", {"class" : "standard_event_hnd_" + str(eventId)})
@@ -134,7 +151,7 @@ def scrape_event(eventId : int, season_type : str, season_year : int, gender : s
     is_relay = name.endswith("Relay")
     print("Is Relay: " + str(is_relay))
 
-    repo.insert_event(eventId, name)
+    repo.insert_event(eventId, name, is_relay)
 
     # Get Performances Using performance-list-row
     performances = result.find_all("div", {"class" : "performance-list-row"})
@@ -152,15 +169,10 @@ def scrape_event(eventId : int, season_type : str, season_year : int, gender : s
             error_log.log_failed(str(e) + "\n" + str(performance) + "\n\n")
 
 def scrape_file(file_content : str, season_type : str, season_year : int, gender : str, school_id : str):
-    print("Season Type: " + season_type)
-    print("Season Year: " + str(season_year))
-    print("Gender: " + gender)
-    print("School ID: " + school_id)
 
     soup = BeautifulSoup(file_content, "html.parser")
     events = soup.find_all("a", {"id" : re.compile("event")})
 
-    print("Starting Events:")
     for event in events:
         eventId = int(event.get("name").replace("event", ""))
         print("Event: " + str(eventId))
