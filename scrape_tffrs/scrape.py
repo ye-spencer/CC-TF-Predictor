@@ -88,7 +88,6 @@ def scrape_relay_performance(eventId : int, season_type : str, season_year : int
 
 def scrape_event(eventId : int, season_type : str, season_year : int, gender : str, school_id : str, soup : BeautifulSoup):
     result = soup.find("div", {"class" : "standard_event_hnd_" + str(eventId)})
-    print(result)
 
     # Get Name Using H3
     name = result.find("h3").text.strip()
