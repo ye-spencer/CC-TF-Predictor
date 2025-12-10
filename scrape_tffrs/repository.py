@@ -112,8 +112,19 @@ def infer_event_type_and_unit(event_name: str, is_relay: bool) -> tuple:
     """
     Infer event_type and measure_unit from event name.
     Returns (event_type, measure_unit)
+    
+    Event Types:
+    - sprints: 60m, 100m, 200m, 400m, 500m, 600m, hurdles, sprint relays
+    - distance: 800m+, mile, steeplechase, distance relays (DMR, 4x800)
+    - throws: shot put, discus, hammer, javelin, weight throw
+    - jumps: high jump, pole vault, long jump, triple jump
+    - combined: heptathlon, decathlon, pentathlon
     """
     name_lower = event_name.lower()
+    
+    # =====================
+    # FIELD EVENTS
+    # =====================
     
     # Throws
     if any(t in name_lower for t in ['shot', 'discus', 'hammer', 'javelin', 'weight throw']):
@@ -123,19 +134,37 @@ def infer_event_type_and_unit(event_name: str, is_relay: bool) -> tuple:
     if any(j in name_lower for j in ['high jump', 'pole vault', 'long jump', 'triple jump']):
         return ('jumps', 'meters')
     
-    # Combined events
+    # Combined/Multi events
     if any(c in name_lower for c in ['heptathlon', 'decathlon', 'pentathlon']):
         return ('combined', 'points')
     
-    # Distance events (800m+)
+    # =====================
+    # RELAY EVENTS
+    # =====================
+    
+    # Distance relays
+    if any(r in name_lower for r in ['distance medley', 'dmr', '4 x 800', '4x800']):
+        return ('distance', 'seconds')
+    
+    # Sprint relays
+    if any(r in name_lower for r in ['4 x 100', '4 x 200', '4 x 400', '4x100', '4x200', '4x400', '4 x 1', '4 x 2', '4 x 4', '4x1', '4x2', '4x4']):
+        return ('sprints', 'seconds')
+    
+    # =====================
+    # INDIVIDUAL RUNNING EVENTS
+    # =====================
+    
+    # Distance events (800m and longer)
     if any(d in name_lower for d in ['800', '1000', '1500', 'mile', '3000', '5000', '10000', '10,000', 'steeplechase']):
         return ('distance', 'seconds')
     
-    # Sprints (everything else that's a running event)
-    if any(s in name_lower for s in ['100', '200', '400', '60', '55', 'hurdle', 'relay', 'dash']):
+    # Sprint events (shorter than 800m)
+    if any(s in name_lower for s in ['55', '60', '100', '200', '400', '500', '600', 'hurdle', 'dash']):
         return ('sprints', 'seconds')
     
-    # Default
+    # =====================
+    # DEFAULT
+    # =====================
     return ('sprints', 'seconds')
 
 # ============================================================
