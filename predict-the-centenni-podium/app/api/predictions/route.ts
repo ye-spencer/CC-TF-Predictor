@@ -105,7 +105,8 @@ function calculateTeamScore(predictions: EventPrediction[], schools: string[]): 
                 score = 1;
             }
             teamScores[athlete.schoolid].totalscore += score;
-            teamScores[athlete.schoolid].eventbreakdown[event.eventname] = score;
+            teamScores[athlete.schoolid].eventbreakdown[event.eventname] = teamScores[athlete.schoolid].eventbreakdown[event.eventname] || 0;
+            teamScores[athlete.schoolid].eventbreakdown[event.eventname] += score;
         });
     });
 

@@ -267,9 +267,22 @@ export default function PredictionsPage() {
                                                         {team.totalscore}
                                                     </div>
                                                 </div>
-                                                <div className="text-xs text-slate-500">
-                                                    {Object.keys(team.eventbreakdown).length} events
-                                                </div>
+                                                <details className="group">
+                                                    <summary className="text-xs text-slate-500 cursor-pointer hover:text-slate-400 list-none flex items-center justify-between outline-none">
+                                                        <span>{Object.keys(team.eventbreakdown).length} events</span>
+                                                        <span className="text-[10px] transition-transform group-open:rotate-180">▼</span>
+                                                    </summary>
+                                                    <div className="mt-2 space-y-1 border-t border-slate-600 pt-2">
+                                                        {Object.entries(team.eventbreakdown)
+                                                            .sort(([, a], [, b]) => (b as number) - (a as number))
+                                                            .map(([eventName, score]) => (
+                                                                <div key={eventName} className="flex justify-between text-[10px] text-slate-400">
+                                                                    <span className="truncate pr-2">{eventName}</span>
+                                                                    <span className="font-mono text-slate-300">{score as number} pts</span>
+                                                                </div>
+                                                            ))}
+                                                    </div>
+                                                </details>
                                             </div>
                                         ))}
                                 </div>
