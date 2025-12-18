@@ -46,7 +46,7 @@ CREATE TABLE AthleteSeason (
     UNIQUE (AthleteID, SeasonType, SeasonYear)
 );
 
-DROP TABLE IF EXISTS TrackEvent CASCADE; -- CREATED
+DROP TABLE IF EXISTS TrackEvent CASCADE;
 CREATE TABLE TrackEvent (
     EventID         INT PRIMARY KEY, -- 1, 101 (TFRRS Event ID)
     EventName       VARCHAR(20) NOT NULL, -- 100m, 4x100m, Discus
@@ -82,4 +82,11 @@ CREATE TABLE Performance (
     ResultValue      DECIMAL(8, 2) NOT NULL, -- 8394, 10.12, 1:52.12
     WindGauge        DECIMAL(3, 1), -- 0.0, 2.1
     CHECK ((RelayTeamID IS NULL AND AthleteSeasonID IS NOT NULL) OR (AthleteSeasonID IS NULL AND RelayTeamID IS NOT NULL))
+);
+
+DROP TABLE IF EXISTS CentennialConferenceEvents CASCADE;
+CREATE TABLE CentennialConferenceEvents (
+    EventID         INT PRIMARY KEY, -- 1, 101 (TFRRS Event ID)
+    Indoor          BOOLEAN NOT NULL, -- True, False
+    Outdoor         BOOLEAN NOT NULL -- True, False
 );

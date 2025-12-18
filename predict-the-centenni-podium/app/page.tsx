@@ -42,8 +42,7 @@ export default function Home() {
 
       {/* Navigation Cards */}
       <main className="max-w-6xl mx-auto py-12 px-6">
-        <div className="grid md:grid-cols-3 gap-8">
-          
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Athletes Card */}
           <Link href="/athletes" className="group">
             <div className="bg-slate-800 rounded-xl p-8 border border-slate-700 hover:border-blue-500 transition-all hover:shadow-lg hover:shadow-blue-500/20">
@@ -89,6 +88,20 @@ export default function Home() {
             </div>
           </Link>
 
+          {/* Predictions Card */}
+          <Link href="/predictions" className="group">
+            <div className="bg-slate-800 rounded-xl p-8 border border-slate-700 hover:border-yellow-500 transition-all hover:shadow-lg hover:shadow-yellow-500/20">
+              <div className="text-5xl mb-4">🔮</div>
+              <h2 className="text-2xl font-bold mb-3 group-hover:text-yellow-400">Predictions</h2>
+              <ul className="text-slate-400 space-y-2">
+                <li>• Championship Predictions</li>
+                <li>• Individual Championship Predictions</li>
+                <li>• Scoring Projections</li>
+                <li>• Performance Predictions</li>
+                <li>• Relay Predictions</li>
+              </ul>
+            </div>
+          </Link>
         </div>
 
         {/* Quick Stats */}
